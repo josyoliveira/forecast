@@ -150,7 +150,113 @@ class _ForecastState extends State<Forecast> {
                   ),
                   RaisedButton(
                     child: Text("BUSCA"),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          FutureBuilder(
+                            future: temperatura,
+                            builder: (context, dados) {
+                              if (dados.hasData) {
+                                return Scaffold(
+                                  appBar: AppBar(
+                                    leading: IconButton(
+                                      icon: Icon(Icons.arrow_back),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    title: Text(dados.data.nomeDaCidade),
+                                  ),
+                                  body: Column(children: [
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Text(dados.data.periodoAtual),
+                                            ],
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(Icons.brightness_3),
+                                          ),
+                                        ]),
+                                    SizedBox(height: 120),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: <Widget>[
+                                        Column(
+                                          children: <Widget>[
+                                            Text(dados.data.temperatura),
+                                            Text(dados.data.condicoesAtual)
+                                          ],
+                                        ),
+                                        Column(
+                                          children: <Widget>[
+                                            Text('19:00'),
+                                            Text('10/01/2020'),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 80.0),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Column(
+                                          children: <Widget>[
+                                            Text('Velocidade do Vento'),
+                                            Text('8km/h'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 80.0),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: <Widget>[
+                                        Column(
+                                          children: <Widget>[
+                                            Text('Umid. do Ar'),
+                                            Text('60%'),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: <Widget>[
+                                            Text('5:32 am'),
+                                            Text('6:00 pm'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 80.0),
+                                    ButtonBar(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        RaisedButton(
+                                          child: Text('PRÓXIMOS DIAS'),
+                                          onPressed: () {
+                                            _ProxDias();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ]),
+                                );
+                              } else if (dados.hasError) {
+                                return Text('${dados.error}');
+                              }
+                              return CircularProgressIndicator();
+                            },
+                          );
+                        }),
+                      );
+                    },
                   ),
                 ],
               )
@@ -161,7 +267,96 @@ class _ForecastState extends State<Forecast> {
     );
   }
 
-  void home() {
+  // void _Home() {
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute(builder: (BuildContext context) {
+  //       return Scaffold(
+  //         appBar: AppBar(
+  //           leading: IconButton(
+  //             icon: Icon(Icons.arrow_back),
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //             },
+  //           ),
+  //           title: Text('Rio Largo'),
+  //         ),
+  //         body: Column(children: [
+  //           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+  //             Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: <Widget>[
+  //                 Text('Rio Largo'),
+  //               ],
+  //             ),
+  //             Padding(
+  //               padding: const EdgeInsets.all(8.0),
+  //               child: Icon(Icons.brightness_3),
+  //             ),
+  //           ]),
+  //           SizedBox(height: 120),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             children: <Widget>[
+  //               Column(
+  //                 children: <Widget>[Text('25°'), Text('Nublado')],
+  //               ),
+  //               Column(
+  //                 children: <Widget>[
+  //                   Text('19:00'),
+  //                   Text('10/01/2020'),
+  //                 ],
+  //               )
+  //             ],
+  //           ),
+  //           SizedBox(height: 80.0),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: <Widget>[
+  //               Column(
+  //                 children: <Widget>[
+  //                   Text('Velocidade do Vento'),
+  //                   Text('8km/h'),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //           SizedBox(height: 80.0),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             children: <Widget>[
+  //               Column(
+  //                 children: <Widget>[
+  //                   Text('Umid. do Ar'),
+  //                   Text('60%'),
+  //                 ],
+  //               ),
+  //               Column(
+  //                 children: <Widget>[
+  //                   Text('5:32 am'),
+  //                   Text('6:00 pm'),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //           SizedBox(height: 80.0),
+  //           ButtonBar(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: <Widget>[
+  //               RaisedButton(
+  //                 child: Text('PRÓXIMOS DIAS'),
+  //                 onPressed: () {
+  //                   _ProxDias();
+  //                 },
+  //               ),
+  //             ],
+  //           ),
+  //         ]),
+  //       );
+  //     }),
+  //   );
+  // }
+
+  void _ProxDias() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (BuildContext context) {
         return Scaffold(
@@ -169,118 +364,31 @@ class _ForecastState extends State<Forecast> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pushNamed(context, '/');
+                Navigator.pop(context);
               },
             ),
-            title: Text('Rio Largo'),
           ),
-          body: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text('Rio Largo'),
-                ],
+          body: ListView(
+            children: <Widget>[
+              Card(
+                child: ListTile(
+                  title: Text('seg 06/01'),
+                  subtitle: Text('Tempestade'),
+                  trailing: Column(
+                    children: <Widget>[
+                      Text('Min 20'),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text('Max 30'),
+                    ],
+                  ),
+                ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.brightness_3),
-              ),
-            ]),
-            SizedBox(height: 120),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[Text('25°'), Text('Nublado')],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text('19:00'),
-                    Text('10/01/2020'),
-                  ],
-                )
-              ],
-            ),
-            SizedBox(height: 80.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text('Velocidade do Vento'),
-                    Text('8km/h'),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 80.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text('Umid. do Ar'),
-                    Text('60%'),
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text('5:32 am'),
-                    Text('6:00 pm'),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 80.0),
-            ButtonBar(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                RaisedButton(
-                  child: Text('PRÓXIMOS DIAS'),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ]),
+            ],
+          ),
         );
       }),
     );
-
-    void proxDias() {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (BuildContext context) {
-          return Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/home');
-                },
-              ),
-            ),
-            body: ListView(
-              children: <Widget>[
-                Card(
-                  child: ListTile(
-                    title: Text('seg 06/01'),
-                    subtitle: Text('Tempestade'),
-                    trailing: Column(
-                      children: <Widget>[
-                        Text('Min 20'),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Text('Max 30'),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      );
-    }
   }
 }
