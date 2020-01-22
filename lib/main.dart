@@ -105,7 +105,16 @@ class ProximosDias {
   }
 }
 
-void main() => runApp(Forecast());
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Forecast(),
+    );
+  }
+}
+
+void main() => runApp(MyApp());
 
 class Forecast extends StatefulWidget {
   // This widget is the root of your application.
@@ -118,150 +127,147 @@ class _ForecastState extends State<Forecast> {
   final _nomeDaCidadeController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            children: <Widget>[
-              SizedBox(height: 80.0),
-              Column(
-                children: <Widget>[
-                  Icon(Icons.brightness_high),
-                  SizedBox(
-                    height: 16.0,
-                  ),
-                  Text("ForeCast")
-                ],
-              ),
-              SizedBox(height: 120.0),
-              TextField(
-                controller: _nomeDaCidadeController,
-                decoration:
-                    InputDecoration(filled: true, labelText: "Nome da Cidade"),
-              ),
-              ButtonBar(
-                children: <Widget>[
-                  FlatButton(
-                    child: Text("LIMPA"),
-                    onPressed: () {
-                      _nomeDaCidadeController.clear();
-                    },
-                  ),
-                  RaisedButton(
-                    child: Text("BUSCA"),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                          FutureBuilder(
-                            future: temperatura,
-                            builder: (context, dados) {
-                              if (dados.hasData) {
-                                return Scaffold(
-                                  appBar: AppBar(
-                                    leading: IconButton(
-                                      icon: Icon(Icons.arrow_back),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                    title: Text(dados.data.nomeDaCidade),
+    return Scaffold(
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          children: <Widget>[
+            SizedBox(height: 80.0),
+            Column(
+              children: <Widget>[
+                Icon(Icons.brightness_high),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Text("ForeCast")
+              ],
+            ),
+            SizedBox(height: 120.0),
+            TextField(
+              controller: _nomeDaCidadeController,
+              decoration:
+                  InputDecoration(filled: true, labelText: "Nome da Cidade"),
+            ),
+            ButtonBar(
+              children: <Widget>[
+                FlatButton(
+                  child: Text("LIMPA"),
+                  onPressed: () {
+                    _nomeDaCidadeController.clear();
+                  },
+                ),
+                RaisedButton(
+                  child: Text("BUSCA"),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (BuildContext context) {
+                        return FutureBuilder(
+                          future: temperatura,
+                          builder: (context, dados) {
+                            if (dados.hasData) {
+                              return Scaffold(
+                                appBar: AppBar(
+                                  leading: IconButton(
+                                    icon: Icon(Icons.arrow_back),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
                                   ),
-                                  body: Column(children: [
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              Text(dados.data.periodoAtual),
-                                            ],
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Icon(Icons.brightness_3),
-                                          ),
-                                        ]),
-                                    SizedBox(height: 120),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            Text(dados.data.temperatura),
-                                            Text(dados.data.condicoesAtual)
-                                          ],
-                                        ),
-                                        Column(
-                                          children: <Widget>[
-                                            Text('19:00'),
-                                            Text('10/01/2020'),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(height: 80.0),
-                                    Row(
+                                  title: Text(dados.data.nomeDaCidade),
+                                ),
+                                body: Column(children: [
+                                  Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: <Widget>[
+                                      children: [
                                         Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
-                                            Text('Velocidade do Vento'),
-                                            Text('8km/h'),
+                                            Text(dados.data.periodoAtual),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 80.0),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            Text('Umid. do Ar'),
-                                            Text('60%'),
-                                          ],
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Icon(Icons.brightness_3),
                                         ),
-                                        Column(
-                                          children: <Widget>[
-                                            Text('5:32 am'),
-                                            Text('6:00 pm'),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 80.0),
-                                    ButtonBar(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        RaisedButton(
-                                          child: Text('PRÓXIMOS DIAS'),
-                                          onPressed: () {
-                                            _ProxDias();
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ]),
-                                );
-                              } else if (dados.hasError) {
-                                return Text('${dados.error}');
-                              }
-                              return CircularProgressIndicator();
-                            },
-                          );
-                        }),
-                      );
-                    },
-                  ),
-                ],
-              )
-            ],
-          ),
+                                      ]),
+                                  SizedBox(height: 120),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      Column(
+                                        children: <Widget>[
+                                          Text(dados.data.temperatura),
+                                          Text(dados.data.condicoesAtual)
+                                        ],
+                                      ),
+                                      Column(
+                                        children: <Widget>[
+                                          Text('19:00'),
+                                          Text('10/01/2020'),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(height: 80.0),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Column(
+                                        children: <Widget>[
+                                          Text('Velocidade do Vento'),
+                                          Text('8km/h'),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 80.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      Column(
+                                        children: <Widget>[
+                                          Text('Umid. do Ar'),
+                                          Text('60%'),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: <Widget>[
+                                          Text('5:32 am'),
+                                          Text('6:00 pm'),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 80.0),
+                                  ButtonBar(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      RaisedButton(
+                                        child: Text('PRÓXIMOS DIAS'),
+                                        onPressed: () {
+                                          _ProxDias();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ]),
+                              );
+                            } else if (dados.hasError) {
+                              return Text('${dados.error}');
+                            }
+                            return CircularProgressIndicator();
+                          },
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );
