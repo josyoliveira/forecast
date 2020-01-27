@@ -281,11 +281,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text('PRÓXIMOS DIAS'),
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ProxDiasScreen(
-                                    proxDias: objetos.results.proximosDias,
-                                  )));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProxDiasScreen(
+                            proxDias: objetos.results.proximosDias,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ],
