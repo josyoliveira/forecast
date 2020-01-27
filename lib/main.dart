@@ -3,11 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
-Future<Temperatura> buscarTemperatura() async {
+Future<Objetos> buscarTemperatura(String cidade) async {
   final resposta = await http.get(
-      'https://api.hgbrasil.com/weather?key=SUA-CHAVE&city_name=Campinas,SP');
+      'https://api.hgbrasil.com/weather?key=312a05a8&city_name=${Uri.encodeQueryComponent(cidade)}');
   if (resposta.statusCode == 200) {
-    return Temperatura.fromJson(json.decode(resposta.body));
+    return Objetos.fromJson(json.decode(resposta.body));
   } else {
     throw Exception('Falha no carregamento');
   }
@@ -17,7 +17,7 @@ class Objetos {
   final String by;
   final bool validKey;
   final Temperatura results;
-  final int excutionTime;
+  final double excutionTime;
   final bool fromCache;
 
   Objetos(
@@ -45,7 +45,7 @@ class Temperatura {
   final String hora;
   final String periodoAtual;
   final int umidadeDoAr;
-  final int velocidadeDoVendo;
+  final String velocidadeDoVento;
   final String nascerDoSol;
   final String porDoSol;
   final List<ProximosDias> proximosDias;
@@ -60,7 +60,7 @@ class Temperatura {
       this.nascerDoSol,
       this.porDoSol,
       this.umidadeDoAr,
-      this.velocidadeDoVendo,
+      this.velocidadeDoVento,
       this.proximosDias});
   factory Temperatura.fromJson(Map<String, dynamic> json) {
     return Temperatura(
@@ -71,21 +71,19 @@ class Temperatura {
       data: json['date'],
       hora: json['time'],
       umidadeDoAr: json['humidity'],
-      velocidadeDoVendo: json['wind_speedy'],
+      velocidadeDoVento: json['wind_speedy'],
       nascerDoSol: json['sunrise'],
       porDoSol: json['sunset'],
-      proximosDias: parseProximosDias(json['forecast']),
+      proximosDias: (json['forecast'])
+          .map<ProximosDias>((json) => ProximosDias.fromJson(json))
+          .toList(),
     );
   }
 }
 
-List<ProximosDias> parseProximosDias(String responseBody) {
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-
-  return parsed
-      .map<ProximosDias>((json) => ProximosDias.fromJson(json))
-      .toList();
-}
+// List<ProximosDias> parseProximosDias(Map<String, dynamic> responseBody) {
+//   return responseBody.map<ProximosDias>((json) => ProximosDias.fromJson(json)).toList();
+// }
 
 class ProximosDias {
   final String data;
@@ -105,7 +103,16 @@ class ProximosDias {
   }
 }
 
-void main() => runApp(Forecast());
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Forecast(),
+    );
+  }
+}
+
+void main() => runApp(MyApp());
 
 class Forecast extends StatefulWidget {
   // This widget is the root of your application.
@@ -114,152 +121,214 @@ class Forecast extends StatefulWidget {
 }
 
 class _ForecastState extends State<Forecast> {
-  Future<Temperatura> temperatura;
   final _nomeDaCidadeController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            children: <Widget>[
+    return Scaffold(
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          children: <Widget>[
+            SizedBox(height: 80.0),
+            Column(
+              children: <Widget>[
+                Icon(Icons.brightness_high),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Text("ForeCast")
+              ],
+            ),
+            SizedBox(height: 120.0),
+            TextField(
+              controller: _nomeDaCidadeController,
+              decoration:
+                  InputDecoration(filled: true, labelText: "Nome da Cidade"),
+            ),
+            ButtonBar(
+              children: <Widget>[
+                FlatButton(
+                  child: Text("LIMPA"),
+                  onPressed: () {
+                    _nomeDaCidadeController.clear();
+                  },
+                ),
+                RaisedButton(
+                  child: Text("BUSCA"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              HomeScreen(_nomeDaCidadeController.text)),
+                    );
+                  },
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  final String cidade;
+
+  HomeScreen(this.cidade);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState(this.cidade);
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  Future<Objetos> objetos;
+  final String cidade;
+  List<ProximosDias> proximos;
+
+  _HomeScreenState(this.cidade);
+  @override
+  void initState() {
+    super.initState();
+    objetos = buscarTemperatura(cidade);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: objetos,
+      builder: (context, dados) {
+        if (dados.hasData) {
+          Objetos objetos = dados.data;
+
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              title: Text(objetos.results.nomeDaCidade),
+            ),
+            body: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(objetos.results.periodoAtual),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(Icons.brightness_3),
+                ),
+              ]),
+              SizedBox(height: 120),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Text(objetos.results.temperatura.toString() + '°'),
+                      Text(objetos.results.condicoesAtual)
+                    ],
+                  ),
+                  Column(
+                    children: <Widget>[
+                      Text(objetos.results.hora),
+                      Text(objetos.results.data),
+                    ],
+                  )
+                ],
+              ),
               SizedBox(height: 80.0),
-              Column(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Icon(Icons.brightness_high),
-                  SizedBox(
-                    height: 16.0,
+                  Column(
+                    children: <Widget>[
+                      Text('Velocidade do Vento'),
+                      Text(objetos.results.velocidadeDoVento),
+                    ],
                   ),
-                  Text("ForeCast")
                 ],
               ),
-              SizedBox(height: 120.0),
-              TextField(
-                controller: _nomeDaCidadeController,
-                decoration:
-                    InputDecoration(filled: true, labelText: "Nome da Cidade"),
+              SizedBox(height: 80.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Text('Umid. do Ar'),
+                      Text(objetos.results.umidadeDoAr.toString() + '%'),
+                    ],
+                  ),
+                  Column(
+                    children: <Widget>[
+                      Text(objetos.results.nascerDoSol),
+                      Text(objetos.results.porDoSol),
+                    ],
+                  ),
+                ],
               ),
+              SizedBox(height: 80.0),
               ButtonBar(
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  FlatButton(
-                    child: Text("LIMPA"),
-                    onPressed: () {
-                      _nomeDaCidadeController.clear();
-                    },
-                  ),
                   RaisedButton(
-                    child: Text("BUSCA"),
+                    child: Text('PRÓXIMOS DIAS'),
                     onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                          FutureBuilder(
-                            future: temperatura,
-                            builder: (context, dados) {
-                              if (dados.hasData) {
-                                return Scaffold(
-                                  appBar: AppBar(
-                                    leading: IconButton(
-                                      icon: Icon(Icons.arrow_back),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                    title: Text(dados.data.nomeDaCidade),
-                                  ),
-                                  body: Column(children: [
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              Text(dados.data.periodoAtual),
-                                            ],
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Icon(Icons.brightness_3),
-                                          ),
-                                        ]),
-                                    SizedBox(height: 120),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            Text(dados.data.temperatura),
-                                            Text(dados.data.condicoesAtual)
-                                          ],
-                                        ),
-                                        Column(
-                                          children: <Widget>[
-                                            Text('19:00'),
-                                            Text('10/01/2020'),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(height: 80.0),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            Text('Velocidade do Vento'),
-                                            Text('8km/h'),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 80.0),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            Text('Umid. do Ar'),
-                                            Text('60%'),
-                                          ],
-                                        ),
-                                        Column(
-                                          children: <Widget>[
-                                            Text('5:32 am'),
-                                            Text('6:00 pm'),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 80.0),
-                                    ButtonBar(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        RaisedButton(
-                                          child: Text('PRÓXIMOS DIAS'),
-                                          onPressed: () {
-                                            _ProxDias();
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ]),
-                                );
-                              } else if (dados.hasError) {
-                                return Text('${dados.error}');
-                              }
-                              return CircularProgressIndicator();
-                            },
-                          );
-                        }),
-                      );
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProxDiasScreen(
+                                    proxDias: objetos.results.proximosDias,
+                                  )));
                     },
                   ),
                 ],
-              )
+              ),
+            ]),
+          );
+        } else if (dados.hasError) {
+          return Text('${dados.error}');
+        }
+
+        return CircularProgressIndicator();
+      },
+    );
+  }
+}
+// A parte de mostrar os próximos dias está com problema no layout
+
+class ProxDiasScreen extends StatelessWidget {
+  final List<ProximosDias> proxDias;
+
+  const ProxDiasScreen({Key key, this.proxDias}) : super(key: key);
+  Widget _builderProximosDiasItem(BuildContext context, int index) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Card(
+        child: ListTile(
+          title: Text(
+              proxDias[index].diaSemana + ' ' + ' ' + proxDias[index].data),
+          subtitle: Text(proxDias[index].previsao),
+          trailing: Column(
+            children: <Widget>[
+              Text('Min ' + proxDias[index].min.toString()),
+              SizedBox(
+                height: 8,
+              ),
+              Text('Max ' + proxDias[index].max.toString()),
             ],
           ),
         ),
@@ -267,128 +336,9 @@ class _ForecastState extends State<Forecast> {
     );
   }
 
-  // void _Home() {
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute(builder: (BuildContext context) {
-  //       return Scaffold(
-  //         appBar: AppBar(
-  //           leading: IconButton(
-  //             icon: Icon(Icons.arrow_back),
-  //             onPressed: () {
-  //               Navigator.pop(context);
-  //             },
-  //           ),
-  //           title: Text('Rio Largo'),
-  //         ),
-  //         body: Column(children: [
-  //           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-  //             Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: <Widget>[
-  //                 Text('Rio Largo'),
-  //               ],
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: Icon(Icons.brightness_3),
-  //             ),
-  //           ]),
-  //           SizedBox(height: 120),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //             children: <Widget>[
-  //               Column(
-  //                 children: <Widget>[Text('25°'), Text('Nublado')],
-  //               ),
-  //               Column(
-  //                 children: <Widget>[
-  //                   Text('19:00'),
-  //                   Text('10/01/2020'),
-  //                 ],
-  //               )
-  //             ],
-  //           ),
-  //           SizedBox(height: 80.0),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: <Widget>[
-  //               Column(
-  //                 children: <Widget>[
-  //                   Text('Velocidade do Vento'),
-  //                   Text('8km/h'),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //           SizedBox(height: 80.0),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //             children: <Widget>[
-  //               Column(
-  //                 children: <Widget>[
-  //                   Text('Umid. do Ar'),
-  //                   Text('60%'),
-  //                 ],
-  //               ),
-  //               Column(
-  //                 children: <Widget>[
-  //                   Text('5:32 am'),
-  //                   Text('6:00 pm'),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //           SizedBox(height: 80.0),
-  //           ButtonBar(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: <Widget>[
-  //               RaisedButton(
-  //                 child: Text('PRÓXIMOS DIAS'),
-  //                 onPressed: () {
-  //                   _ProxDias();
-  //                 },
-  //               ),
-  //             ],
-  //           ),
-  //         ]),
-  //       );
-  //     }),
-  //   );
-  // }
-
-  void _ProxDias() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (BuildContext context) {
-        return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
-          body: ListView(
-            children: <Widget>[
-              Card(
-                child: ListTile(
-                  title: Text('seg 06/01'),
-                  subtitle: Text('Tempestade'),
-                  trailing: Column(
-                    children: <Widget>[
-                      Text('Min 20'),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Text('Max 30'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
-    );
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: proxDias.length, itemBuilder: (context, ProximosDias) {});
   }
 }
