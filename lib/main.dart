@@ -132,11 +132,18 @@ class _ForecastState extends State<Forecast> {
             SizedBox(height: 80.0),
             Column(
               children: <Widget>[
-                Icon(Icons.brightness_high),
+                Image(
+                  image: AssetImage('image/iconeapp.png'),
+                  width: 80,
+                ),
                 SizedBox(
                   height: 16.0,
                 ),
-                Text("ForeCast")
+                Text(
+                  "ForeCast",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black54),
+                )
               ],
             ),
             SizedBox(height: 120.0),
@@ -154,7 +161,8 @@ class _ForecastState extends State<Forecast> {
                   },
                 ),
                 RaisedButton(
-                  child: Text("BUSCA"),
+                  child: Text("BUSCA", style: TextStyle(color: Colors.white)),
+                  color: Colors.blue,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -196,110 +204,126 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: objetos,
-      builder: (context, dados) {
-        if (dados.hasData) {
-          Objetos objetos = dados.data;
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Colors.white,
+      ),
+      home: FutureBuilder(
+        future: objetos,
+        builder: (context, dados) {
+          if (dados.hasData) {
+            Objetos objetos = dados.data;
 
-          return Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                title: Text(objetos.results.nomeDaCidade,
+                    style: TextStyle(fontSize: 25)),
               ),
-              title: Text(objetos.results.nomeDaCidade),
-            ),
-            body: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
+              body: Column(children: [
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      SizedBox(height: 20),
+                      Text(objetos.results.periodoAtual,
+                          style: TextStyle(fontSize: 20)),
+                    ],
+                  ),
+                ]),
+                SizedBox(height: 120),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Text(objetos.results.periodoAtual),
+                    Column(
+                      children: <Widget>[
+                        Text(objetos.results.temperatura.toString() + '°',
+                            style:
+                                TextStyle(fontSize: 80, color: Colors.black54)),
+                        Text(objetos.results.condicoesAtual)
+                      ],
+                    ),
+                    Column(
+                      children: <Widget>[
+                        Text(objetos.results.hora,
+                            style: TextStyle(fontSize: 20)),
+                        Text(objetos.results.data,
+                            style: TextStyle(fontSize: 20)),
+                      ],
+                    )
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.brightness_3),
+                SizedBox(height: 80.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Text('Velocidade do Vento'),
+                        Text(objetos.results.velocidadeDoVento,
+                            style: TextStyle(fontSize: 20)),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 80.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Text('Umid. do Ar'),
+                        Text(objetos.results.umidadeDoAr.toString() + '%',
+                            style: TextStyle(fontSize: 25)),
+                      ],
+                    ),
+                    Column(
+                      children: <Widget>[
+                        Text(objetos.results.nascerDoSol,
+                            style: TextStyle(fontSize: 20)),
+                        Text(objetos.results.porDoSol,
+                            style: TextStyle(fontSize: 20)),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 80.0),
+                ButtonBar(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    RaisedButton(
+                      child: Text('PRÓXIMOS DIAS',
+                          style: TextStyle(color: Colors.white)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0)),
+                      color: Colors.blue,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProxDiasScreen(
+                              proxDias: objetos.results.proximosDias,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ]),
-              SizedBox(height: 120),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text(objetos.results.temperatura.toString() + '°'),
-                      Text(objetos.results.condicoesAtual)
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(objetos.results.hora),
-                      Text(objetos.results.data),
-                    ],
-                  )
-                ],
-              ),
-              SizedBox(height: 80.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text('Velocidade do Vento'),
-                      Text(objetos.results.velocidadeDoVento),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 80.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text('Umid. do Ar'),
-                      Text(objetos.results.umidadeDoAr.toString() + '%'),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(objetos.results.nascerDoSol),
-                      Text(objetos.results.porDoSol),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 80.0),
-              ButtonBar(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  RaisedButton(
-                    child: Text('PRÓXIMOS DIAS'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProxDiasScreen(
-                            proxDias: objetos.results.proximosDias,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ]),
-          );
-        } else if (dados.hasError) {
-          return Text('${dados.error}');
-        }
+            );
+          } else if (dados.hasError) {
+            return Text('${dados.error}');
+          }
 
-        return CircularProgressIndicator();
-      },
+          return CircularProgressIndicator();
+        },
+      ),
     );
   }
 }
@@ -310,28 +334,33 @@ class ProxDiasScreen extends StatelessWidget {
 
   const ProxDiasScreen({Key key, this.proxDias}) : super(key: key);
   Widget _builderProximosDiasItem(BuildContext context, int index) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Colors.white,
       ),
-      body: Card(
-        child: ListTile(
-          title: Text(
-              proxDias[index].diaSemana + ' ' + ' ' + proxDias[index].data),
-          subtitle: Text(proxDias[index].previsao),
-          trailing: Column(
-            children: <Widget>[
-              Text('Min ' + proxDias[index].min.toString()),
-              SizedBox(
-                height: 8,
-              ),
-              Text('Max ' + proxDias[index].max.toString()),
-            ],
+      home: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+        body: Card(
+          child: ListTile(
+            title: Text(
+                proxDias[index].diaSemana + ' ' + ' ' + proxDias[index].data),
+            subtitle: Text(proxDias[index].previsao),
+            trailing: Column(
+              children: <Widget>[
+                Text('Min ' + proxDias[index].min.toString()),
+                SizedBox(
+                  height: 8,
+                ),
+                Text('Max ' + proxDias[index].max.toString()),
+              ],
+            ),
           ),
         ),
       ),
