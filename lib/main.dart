@@ -327,41 +327,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-// A parte de mostrar os próximos dias está com problema no layout
 
 class ProxDiasScreen extends StatelessWidget {
   final List<ProximosDias> proxDias;
 
   const ProxDiasScreen({Key key, this.proxDias}) : super(key: key);
+
   Widget _builderProximosDiasItem(BuildContext context, int index) {
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.white,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: Card(
-          child: ListTile(
-            title: Text(
-                proxDias[index].diaSemana + ' ' + ' ' + proxDias[index].data),
-            subtitle: Text(proxDias[index].previsao),
-            trailing: Column(
-              children: <Widget>[
-                Text('Min ' + proxDias[index].min.toString()),
-                SizedBox(
-                  height: 8,
-                ),
-                Text('Max ' + proxDias[index].max.toString()),
-              ],
+    return Card(
+      child: ListTile(
+        title:
+            Text(proxDias[index].diaSemana + ' ' + ' ' + proxDias[index].data),
+        subtitle: Text(proxDias[index].previsao),
+        trailing: Column(
+          children: <Widget>[
+            Text('Min ' + proxDias[index].min.toString()),
+            SizedBox(
+              height: 8,
             ),
-          ),
+            Text('Max ' + proxDias[index].max.toString()),
+          ],
         ),
       ),
     );
@@ -369,7 +354,24 @@ class ProxDiasScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: proxDias.length, itemBuilder: (context, ProximosDias) {});
+    return MaterialApp(
+        theme: ThemeData(
+          primaryColor: Colors.white,
+        ),
+        home: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          body: ListView.builder(
+              itemCount: proxDias.length,
+              itemBuilder: (context, index) {
+                return _builderProximosDiasItem(context, index);
+              }),
+        ));
   }
 }
