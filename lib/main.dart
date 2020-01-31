@@ -207,121 +207,113 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: objetos,
-      builder: (context, dados) {
-        if (dados.hasData) {
-          Objetos objetos = dados.data;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(cidade),
+      ),
+      body: FutureBuilder(
+          future: objetos,
+          builder: (context, dados) {
+            if (dados.hasData) {
+              Objetos objetos = dados.data;
 
-          return Scaffold(
-            appBar: AppBar(
-              // leading: IconButton(
-              //   icon: Icon(Icons.arrow_back),
-              //   onPressed: () {
-              //     Navigator.pop(context);
-              //   },
-              // ),
-              title: Text(objetos.results.nomeDaCidade,
-                  style: TextStyle(fontSize: 25)),
-            ),
-            body: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
+              return Column(children: [
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      SizedBox(height: 20),
+                      Text(objetos.results.periodoAtual,
+                          style: TextStyle(fontSize: 20)),
+                    ],
+                  ),
+                ]),
+                SizedBox(height: 120),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    SizedBox(height: 20),
-                    Text(objetos.results.periodoAtual,
-                        style: TextStyle(fontSize: 20)),
+                    Column(
+                      children: <Widget>[
+                        Text(objetos.results.temperatura.toString() + '°',
+                            style:
+                                TextStyle(fontSize: 80, color: Colors.black54)),
+                        Text(objetos.results.condicoesAtual)
+                      ],
+                    ),
+                    Column(
+                      children: <Widget>[
+                        Text(objetos.results.hora,
+                            style: TextStyle(fontSize: 20)),
+                        Text(objetos.results.data,
+                            style: TextStyle(fontSize: 20)),
+                      ],
+                    )
                   ],
                 ),
-              ]),
-              SizedBox(height: 120),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text(objetos.results.temperatura.toString() + '°',
-                          style:
-                              TextStyle(fontSize: 80, color: Colors.black54)),
-                      Text(objetos.results.condicoesAtual)
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(objetos.results.hora,
-                          style: TextStyle(fontSize: 20)),
-                      Text(objetos.results.data,
-                          style: TextStyle(fontSize: 20)),
-                    ],
-                  )
-                ],
-              ),
-              SizedBox(height: 80.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text('Velocidade do Vento'),
-                      Text(objetos.results.velocidadeDoVento,
-                          style: TextStyle(fontSize: 20)),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 80.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text('Umid. do Ar'),
-                      Text(objetos.results.umidadeDoAr.toString() + '%',
-                          style: TextStyle(fontSize: 25)),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(objetos.results.nascerDoSol,
-                          style: TextStyle(fontSize: 20)),
-                      Text(objetos.results.porDoSol,
-                          style: TextStyle(fontSize: 20)),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 80.0),
-              ButtonBar(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  RaisedButton(
-                    child: Text('PRÓXIMOS DIAS',
-                        style: TextStyle(color: Colors.white)),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0)),
-                    color: Colors.blue,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProxDiasScreen(
-                            proxDias: objetos.results.proximosDias,
+                SizedBox(height: 80.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Text('Velocidade do Vento'),
+                        Text(objetos.results.velocidadeDoVento,
+                            style: TextStyle(fontSize: 20)),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 80.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Text('Umid. do Ar'),
+                        Text(objetos.results.umidadeDoAr.toString() + '%',
+                            style: TextStyle(fontSize: 25)),
+                      ],
+                    ),
+                    Column(
+                      children: <Widget>[
+                        Text(objetos.results.nascerDoSol,
+                            style: TextStyle(fontSize: 20)),
+                        Text(objetos.results.porDoSol,
+                            style: TextStyle(fontSize: 20)),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 80.0),
+                ButtonBar(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    RaisedButton(
+                      child: Text('PRÓXIMOS DIAS',
+                          style: TextStyle(color: Colors.white)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0)),
+                      color: Colors.blue,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProxDiasScreen(
+                              proxDias: objetos.results.proximosDias,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ]),
-          );
-        } else if (dados.hasError) {
-          return Text('${dados.error}');
-        }
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ]);
+            } else if (dados.hasError) {
+              return Text('${dados.error}');
+            }
 
-        return CircularProgressIndicator();
-      },
+            return Center(child: CircularProgressIndicator());
+          }),
     );
   }
 }
